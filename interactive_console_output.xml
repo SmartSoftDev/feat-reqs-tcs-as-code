@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Robot 7.0.1 (Python 3.10.12 on linux)" generated="2024-08-21T16:51:45.575986" rpa="false" schemaversion="5">
+<suite id="s1" name="Robot Interactive Console" source="/home/ghe/.vscode/extensions/robocorp.robotframework-lsp-1.12.0/src/robotframework_ls/vendored/robotframework_interactive/robot_interactive_console.robot">
+<test id="s1-t1" name="Default Task/Test" line="5">
+<kw name="Interpreter Main Loop" owner="MainLoop">
+<status status="PASS" start="2024-08-21T16:51:45.601048" elapsed="2.889835"/>
+</kw>
+<status status="PASS" start="2024-08-21T16:51:45.600644" elapsed="2.890649"/>
+</test>
+<status status="PASS" start="2024-08-21T16:51:45.576844" elapsed="2.915983"/>
+</suite>
+<statistics>
+<total>
+<stat pass="1" fail="0" skip="0">All Tests</stat>
+</total>
+<tag>
+</tag>
+<suite>
+<stat pass="1" fail="0" skip="0" id="s1" name="Robot Interactive Console">Robot Interactive Console</stat>
+</suite>
+</statistics>
+<errors>
+<msg time="2024-08-21T16:51:45.571900" level="WARN">Error in file '/home/ghe/.vscode/extensions/robocorp.robotframework-lsp-1.12.0/src/robotframework_ls/vendored/robotframework_interactive/robot_interactive_console.robot' on line 4: Singular section headers like '*** Test Case ***' are deprecated. Use plural format like '*** Test Cases ***' instead.</msg>
+</errors>
+</robot>

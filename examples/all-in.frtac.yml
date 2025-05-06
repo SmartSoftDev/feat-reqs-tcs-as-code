@@ -1,0 +1,82 @@
+version: 1.0
+root-dir: .
+links-to:
+- 
+  name: Requirements
+  uid: tc-to-reqs
+  from-uids: [TS, TC]
+  to-uids: [UR, PR, SWR, HWR, DDD]
+  from-name: tests
+  to-name: tested-by
+  require-link-completeness-percentage: true
+- 
+  name: Requirements
+  uid: feature-to-reqs
+  from-uids: [E, F]
+  to-uids: [UR, PR, SWR, HWR, DDD]
+  to-name: implements
+  from-name: requires
+  require-link-completeness-percentage: true
+
+items-grouping:
+-
+  name: Requirement
+  plural: Requirements
+  uid: R
+  type: group
+- 
+  name: User Requirement
+  plural: User Requirements
+  uid: UR
+  type: requirement
+  parents: [R]
+-
+  name: Product Requirement
+  plural: Product Requirements
+  uid: PR
+  type: requirement
+  parents: [UR]
+  relation: m-to-n
+-
+  name: Software Requirement
+  plural: Software Requirements
+  uid: SWR
+  parents: [PR]
+  relation: m-to-n
+-  
+  name: Hardware Requirement
+  plural: Hardware Requirements
+  uid: HWR
+  parents: [PR]
+  relation: m-to-n
+- 
+  name: Detailed Design Description 
+  plural: Detailed Design Descriptions 
+  uid: DDD
+  parents: [HWR, SWR]
+  relation: m-to-n
+-
+  name: Test Suite
+  plural: Test Suites
+  uid: TS
+  type: test-suite
+  links-to: [tc-to-reqs]
+-
+  name: Test Case
+  plural: Test Cases
+  uid: TC
+  type: test-case
+  parents: [TS]
+  relation: m-to-n
+  links-to: [tc-to-reqs]
+- 
+  name: Epics
+  type: group
+  uid: E
+- 
+  name: Feature
+  uid: F
+  type: feature
+  parents: [E]
+  relation: m-to-n
+

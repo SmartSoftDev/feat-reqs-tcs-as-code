@@ -1,0 +1,43 @@
+{
+    "python.autoComplete.extraPaths": [
+        "${workspaceRoot}"
+    ],
+    "python.defaultInterpreterPath": "python3",
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true
+    },
+    "[markdown]": {
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true
+    },
+    "cSpell.words": [
+        "ghepy",
+        "gjson",
+        "iscoroutine",
+        "reconn",
+        "ssid",
+        "unetproto"
+    ],
+    "cmake.configureOnOpen": false,
+    "python.analysis.extraPaths": [
+        "${workspaceRoot}"
+    ],
+    "editor.rulers": [
+        {
+            "column": 120,
+            "color": "gray"
+        }
+    ],
+    "cSpell.language": "en",
+    "cmake.sourceDirectory": "/home/ghe/git/core/ghe/c/src/app",
+    "black-formatter.args": [
+        "--line-length",
+        "120",
+        "--target-version",
+        "py39"
+    ],
+    "robot.pythonpath": [
+        "$workspaceRoot/robot_tcs/"
+    ],
+}

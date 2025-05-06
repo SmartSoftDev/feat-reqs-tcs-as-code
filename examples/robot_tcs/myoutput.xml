@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Robot 7.0.1 (Python 3.10.12 on linux)" generated="2024-08-14T21:57:46.801208" rpa="false" schemaversion="5">
+<suite id="s1" name="Robot Tcs" source="/home/ghe/ghub/ssd/feat-reqs-tcs-as-code/examples/robot_tcs">
+<suite id="s1-s1" name="TS-1 my first TS" source="/home/ghe/ghub/ssd/feat-reqs-tcs-as-code/examples/robot_tcs/TS-1_my_first_TS.robot">
+<test id="s1-s1-t1" name="Login User with Password" line="9">
+<kw name="Connect to Server" owner="keywords">
+<msg time="2024-08-14T21:57:46.823639" level="TRACE">Arguments: [  ]</msg>
+<kw name="Connect" owner="CustomLibrary">
+<msg time="2024-08-14T21:57:46.824072" level="TRACE">Arguments: [ 'fe80::aede:48ff:fe00:1122' ]</msg>
+<msg time="2024-08-14T21:57:46.824199" level="TRACE">Return: None</msg>
+<arg>fe80::aede:48ff:fe00:1122</arg>
+<status status="PASS" start="2024-08-14T21:57:46.824004" elapsed="0.000228"/>
+</kw>
+<msg time="2024-08-14T21:57:46.824306" level="TRACE">Return: None</msg>
+<status status="PASS" start="2024-08-14T21:57:46.823480" elapsed="0.000852"/>
+</kw>
+<kw name="Login User" owner="keywords">
+<msg time="2024-08-14T21:57:46.824675" level="TRACE">Arguments: [ ${login}='ironman' | ${password}='1234567890' ]</msg>
+<kw name="Set Login Name" owner="CustomLibrary">
+<msg time="2024-08-14T21:57:46.824885" level="TRACE">Arguments: [ 'ironman' ]</msg>
+<msg time="2024-08-14T21:57:46.824937" level="INFO">User login set to: ironman</msg>
+<msg time="2024-08-14T21:57:46.824964" level="TRACE">Return: None</msg>
+<arg>${login}</arg>
+<doc>Sets the users login name and stores it for authentication.</doc>
+<status status="PASS" start="2024-08-14T21:57:46.824801" elapsed="0.000187"/>
+</kw>
+<kw name="Set Password" owner="CustomLibrary">
+<msg time="2024-08-14T21:57:46.825180" level="TRACE">Arguments: [ '1234567890' ]</msg>
+<msg time="2024-08-14T21:57:46.825230" level="INFO">Password set.</msg>
+<msg time="2024-08-14T21:57:46.825256" level="TRACE">Return: None</msg>
+<arg>${password}</arg>
+<doc>Sets the users login name and stores it for authentication.</doc>
+<status status="PASS" start="2024-08-14T21:57:46.825091" elapsed="0.000189"/>
+</kw>
+<kw name="Execute Login" owner="CustomLibrary">
+<msg time="2024-08-14T21:57:46.825406" level="TRACE">Arguments: [  ]</msg>
+<msg time="2024-08-14T21:57:46.825530" level="FAIL">PermissionError: No valid user session. Authenticate first!</msg>
+<msg time="2024-08-14T21:57:46.825724" level="DEBUG">Traceback (most recent call last):
+  File "/home/ghe/ghub/ssd/feat-reqs-tcs-as-code/examples/robot_tcs/CustomLibrary.py", line 98, in execute_login
+    if self.session:
+  File "/home/ghe/ghub/ssd/feat-reqs-tcs-as-code/examples/robot_tcs/CustomLibrary.py", line 81, in session
+    raise PermissionError("No valid user session. Authenticate first!")
+PermissionError: No valid user session. Authenticate first!</msg>
+<doc>Triggers the authentication process at the backend and stores the session token.</doc>
+<status status="FAIL" start="2024-08-14T21:57:46.825362" elapsed="0.000388">PermissionError: No valid user session. Authenticate first!</status>
+</kw>
+<arg>ironman</arg>
+<arg>1234567890</arg>
+<status status="FAIL" start="2024-08-14T21:57:46.824526" elapsed="0.001321">PermissionError: No valid user session. Authenticate first!</status>
+</kw>
+<kw name="Verify Valid Login" owner="keywords">
+<arg>Tony Stark</arg>
+<status status="NOT RUN" start="2024-08-14T21:57:46.826059" elapsed="0.000022"/>
+</kw>
+<kw name="Close Server Connection" owner="keywords" type="TEARDOWN">
+<msg time="2024-08-14T21:57:46.826536" level="TRACE">Arguments: [  ]</msg>
+<kw name="Disconnect" owner="CustomLibrary">
+<msg time="2024-08-14T21:57:46.826676" level="TRACE">Arguments: [  ]</msg>
+<msg time="2024-08-14T21:57:46.826719" level="TRACE">Return: None</msg>
+<status status="PASS" start="2024-08-14T21:57:46.826629" elapsed="0.000116"/>
+</kw>
+<msg time="2024-08-14T21:57:46.826779" level="TRACE">Return: None</msg>
+<status status="PASS" start="2024-08-14T21:57:46.826394" elapsed="0.000406"/>
+</kw>
+<doc>Topic:: Here it is.
+Topic2:: The documentaiton</doc>
+<tag>positive</tag>
+<status status="FAIL" start="2024-08-14T21:57:46.823036" elapsed="0.003821">PermissionError: No valid user session. Authenticate first!</status>
+</test>
+<test id="s1-s1-t2" name="Denied Login with Wrong Password" line="17">
+<kw name="Connect to Server" owner="keywords">
+<msg time="2024-08-14T21:57:46.827441" level="TRACE">Arguments: [  ]</msg>
+<kw name="Connect" owner="CustomLibrary">
+<msg time="2024-08-14T21:57:46.827569" level="TRACE">Arguments: [ 'fe80::aede:48ff:fe00:1122' ]</msg>
+<msg time="2024-08-14T21:57:46.827633" level="TRACE">Return: None</msg>
+<arg>fe80::aede:48ff:fe00:1122</arg>
+<status status="PASS" start="2024-08-14T21:57:46.827522" elapsed="0.000135"/>
+</kw>
+<msg time="2024-08-14T21:57:46.827695" level="TRACE">Return: None</msg>
+<status status="PASS" start="2024-08-14T21:57:46.827335" elapsed="0.000381"/>
+</kw>
+<kw name="Run Keyword And Expect Error" owner="BuiltIn">
+<msg time="2024-08-14T21:57:46.827870" level="TRACE">Arguments: [ '*Invalid Password' | 'Login User' | 'ironman' | '123' ]</msg>
+<kw name="Login User" owner="keywords">
+<msg time="2024-08-14T21:57:46.828212" level="TRACE">Arguments: [ ${login}='ironman' | ${password}='123' ]</msg>
+<kw name="Set Login Name" owner="CustomLibrary">
+<msg time="2024-08-14T21:57:46.828400" level="TRACE">Arguments: [ 'ironman' ]</msg>
+<msg time="2024-08-14T21:57:46.828443" level="INFO">User login set to: ironman</msg>
+<msg time="2024-08-14T21:57:46.828469" level="TRACE">Return: None</msg>
+<arg>${login}</arg>
+<doc>Sets the users login name and stores it for authentication.</doc>
+<status status="PASS" start="2024-08-14T21:57:46.828331" elapsed="0.000160"/>
+</kw>
+<kw name="Set Password" owner="CustomLibrary">
+<msg time="2024-08-14T21:57:46.828632" level="TRACE">Arguments: [ '123' ]</msg>
+<msg time="2024-08-14T21:57:46.828668" level="INFO">Password set.</msg>
+<msg time="2024-08-14T21:57:46.828689" level="TRACE">Return: None</msg>
+<arg>${password}</arg>
+<doc>Sets the users login name and stores it for authentication.</doc>
+<status status="PASS" start="2024-08-14T21:57:46.828564" elapsed="0.000144"/>
+</kw>
+<kw name="Execute Login" owner="CustomLibrary">
+<msg time="2024-08-14T21:57:46.828804" level="TRACE">Arguments: [  ]</msg>
+<msg time="2024-08-14T21:57:46.828870" level="FAIL">PermissionError: No valid user session. Authenticate first!</msg>
+<msg time="2024-08-14T21:57:46.828947" level="DEBUG">Traceback (most recent call last):
+  File "/home/ghe/ghub/ssd/feat-reqs-tcs-as-code/examples/robot_tcs/CustomLibrary.py", line 98, in execute_login
+    if self.session:
+  File "/home/ghe/ghub/ssd/feat-reqs-tcs-as-code/examples/robot_tcs/CustomLibrary.py", line 81, in session
+    raise PermissionError("No valid user session. Authenticate first!")
+PermissionError: No valid user session. Authenticate first!</msg>
+<doc>Triggers the authentication process at the backend and stores the session token.</doc>
+<status status="FAIL" start="2024-08-14T21:57:46.828773" elapsed="0.000194">PermissionError: No valid user session. Authenticate first!</status>
+</kw>
+<arg>ironman</arg>
+<arg>123</arg>
+<status status="FAIL" start="2024-08-14T21:57:46.828002" elapsed="0.001036">PermissionError: No valid user session. Authenticate first!</status>
+</kw>
+<msg time="2024-08-14T21:57:46.829252" level="FAIL">Expected error '*Invalid Password' but got 'PermissionError: No valid user session. Authenticate first!'.</msg>
+<msg time="2024-08-14T21:57:46.829293" level="DEBUG">Traceback (most recent call last):
+  None
+AssertionError: Expected error '*Invalid Password' but got 'PermissionError: No valid user session. Authenticate first!'.</msg>
+<arg>*Invalid Password</arg>
+<arg>Login User</arg>
+<arg>ironman</arg>
+<arg>123</arg>
+<doc>Runs the keyword and checks that the expected error occurred.</doc>
+<status status="FAIL" start="2024-08-14T21:57:46.827826" elapsed="0.001483">Expected error '*Invalid Password' but got 'PermissionError: No valid user session. Authenticate first!'.</status>
+</kw>
+<kw name="Verify Unauthorised Access" owner="keywords">
+<status status="NOT RUN" start="2024-08-14T21:57:46.829471" elapsed="0.000017"/>
+</kw>
+<kw name="Close Server Connection" owner="keywords" type="TEARDOWN">
+<msg time="2024-08-14T21:57:46.829903" level="TRACE">Arguments: [  ]</msg>
+<kw name="Disconnect" owner="CustomLibrary">
+<msg time="2024-08-14T21:57:46.830036" level="TRACE">Arguments: [  ]</msg>
+<msg time="2024-08-14T21:57:46.830079" level="TRACE">Return: None</msg>
+<status status="PASS" start="2024-08-14T21:57:46.829995" elapsed="0.000114"/>
+</kw>
+<msg time="2024-08-14T21:57:46.830147" level="TRACE">Return: None</msg>
+<status status="PASS" start="2024-08-14T21:57:46.829755" elapsed="0.000432"/>
+</kw>
+<tag>negative</tag>
+<status status="FAIL" start="2024-08-14T21:57:46.827053" elapsed="0.003222">Expected error '*Invalid Password' but got 'PermissionError: No valid user session. Authenticate first!'.</status>
+</test>
+<doc>A test suite for valid login.
+
+Keywords are imported from the resource file</doc>
+<status status="FAIL" start="2024-08-14T21:57:46.818686" elapsed="0.011988"/>
+</suite>
+<status status="FAIL" start="2024-08-14T21:57:46.801941" elapsed="0.029194"/>
+</suite>
+<statistics>
+<total>
+<stat pass="0" fail="2" skip="0">All Tests</stat>
+</total>
+<tag>
+<stat pass="0" fail="1" skip="0">negative</stat>
+<stat pass="0" fail="1" skip="0">positive</stat>
+</tag>
+<suite>
+<stat pass="0" fail="2" skip="0" id="s1" name="Robot Tcs">Robot Tcs</stat>
+<stat pass="0" fail="2" skip="0" id="s1-s1" name="TS-1 my first TS">Robot Tcs.TS-1 my first TS</stat>
+</suite>
+</statistics>
+<errors>
+</errors>
+</robot>
