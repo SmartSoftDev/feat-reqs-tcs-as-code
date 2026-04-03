@@ -15,6 +15,7 @@
         "ghepy",
         "gjson",
         "iscoroutine",
+        "Pairable",
         "reconn",
         "ssid",
         "unetproto"
@@ -26,7 +27,7 @@
     "editor.rulers": [
         {
             "column": 120,
-            "color": "gray"
+            "color": "Gray"
         }
     ],
     "cSpell.language": "en",
@@ -36,8 +37,5 @@
         "120",
         "--target-version",
         "py39"
-    ],
-    "robot.pythonpath": [
-        "$workspaceRoot/robot_tcs/"
-    ],
+    ]
 }
