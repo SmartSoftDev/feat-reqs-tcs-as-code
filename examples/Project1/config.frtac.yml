@@ -20,16 +20,16 @@ links-to:
 
 items-grouping:
 -
-  name: Requirement
-  plural: Requirements
-  uid: R
+  name: Business Requirement
+  plural: Business Requirements
+  uid: BR
   type: group
 - 
   name: User Requirement
   plural: User Requirements
   uid: UR
   type: requirement
-  parents: [R]
+  parents: [BR]
 -
   name: Product Requirement
   plural: Product Requirements
@@ -49,6 +49,13 @@ items-grouping:
   uid: HWR
   parents: [PR]
   relation: m-to-n
+-  
+  name: Regulatory Requirement
+  plural: Regulatory Requirements
+  uid: RR
+  parents: [UR, BR, PR]
+  relation: m-to-n
+
 - 
   name: Detailed Design Description 
   plural: Detailed Design Descriptions 
