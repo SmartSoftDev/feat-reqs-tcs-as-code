@@ -7,7 +7,6 @@ and emits a single Markdown (and optionally HTML) requirements document.
 """
 
 import argparse
-import os
 import re
 import sys
 from pathlib import Path
@@ -215,6 +214,48 @@ def generate_markdown(
         sections.append("\n".join(req_lines))
 
     return "\n".join(sections)
+
+
+# ---------------------------------------------------------------------------
+# HTML generation
+# ---------------------------------------------------------------------------
+
+def markdown_to_html(md_text: str, title: str = "Requirements") -> str:
+    try:
+        import markdown  # type: ignore
+        body = markdown.markdown(md_text, extensions=["fenced_code", "tables"])
+    except ImportError:
+        # Fallback: very basic conversion (wrap in <pre> per section)
+        print(
+            "WARNING: 'markdown' package not installed; "
+            "falling back to basic HTML wrapping. "
+            "Install with: pip install markdown",
+            file=sys.stderr,
+        )
+        escaped = md_text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        body = f"<pre>{escaped}</pre>"
+
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <style>
+    body {{ font-family: sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; }}
+    h1 {{ border-bottom: 2px solid #333; padding-bottom: .4rem; }}
+    h2 {{ border-bottom: 1px solid #999; padding-bottom: .2rem; margin-top: 2rem; }}
+    h3 {{ color: #2c5282; margin-top: 1.5rem; }}
+    code {{ background: #f4f4f4; padding: 2px 4px; border-radius: 3px; }}
+    pre  {{ background: #f4f4f4; padding: 1rem; border-radius: 4px; overflow-x: auto; }}
+  </style>
+</head>
+<body>
+{body}
+</body>
+</html>
+"""
+
 
 # ---------------------------------------------------------------------------
 # Main
