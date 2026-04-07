@@ -2,7 +2,7 @@
 """
 gen_reqs.py — Requirements document generator.
 
-Discovers *_ac.md files, groups them by prefix, sorts numerically,
+Discovers *ac.md files, groups them by prefix, sorts numerically,
 and emits a single Markdown (and optionally HTML) requirements document.
 """
 
@@ -20,7 +20,7 @@ import yaml
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
-        description="Generate a requirements document from *_ac.md files.",
+        description="Generate a requirements document from *ac.md files.",
     )
     p.add_argument(
         "--output",
@@ -32,7 +32,7 @@ def parse_args() -> argparse.Namespace:
         "--source-dir",
         default=None,
         metavar="DIR",
-        help="Root directory to search for *_ac.md files. "
+        help="Root directory to search for *ac.md files. "
              "Defaults to root-dir from the project config.",
     )
     p.add_argument(
@@ -91,7 +91,7 @@ FIRST_H1_RE = re.compile(r"^#\s+(.+)$", re.MULTILINE)
 
 def parse_ac_file(filepath: Path) -> dict | None:
     """
-    Parse an *_ac.md file and return a dict with keys:
+    Parse an *ac.md file and return a dict with keys:
         id, prefix, number, title, body, filepath
     Returns None if the file cannot be parsed.
     """
@@ -147,7 +147,7 @@ def parse_ac_file(filepath: Path) -> dict | None:
 
 def discover_files(source_dir: str | None, root_dir_from_config: str, config_path: str) -> list[dict]:
     """
-    Search for *_ac.md files.
+    Search for *ac.md files.
 
     If --source-dir was not provided, resolve root-dir from the config file's
     own directory. Otherwise use the explicitly supplied --source-dir.
