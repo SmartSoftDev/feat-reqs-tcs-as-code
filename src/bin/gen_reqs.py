@@ -2,7 +2,7 @@
 """
 gen_reqs.py — Requirements document generator.
 
-Discovers *ac.md files, groups them by prefix, sorts numerically,
+Discovers *_ac.md files, groups them by prefix, sorts numerically,
 and emits a single Markdown (and optionally HTML) requirements document.
 """
 
@@ -162,9 +162,7 @@ def discover_files(source_dir: str | None, root_dir_from_config: str, config_pat
         sys.exit(f"ERROR: search directory does not exist: {search_path}")
 
     results = []
-    ac_files = sorted(
-        set(search_path.rglob("*.ac.md")) | set(search_path.rglob("*_ac.md"))
-    )
+    ac_files = sorted(search_path.rglob("*ac.md"))
     for fp in ac_files:
         parsed = parse_ac_file(fp)
         if parsed:
@@ -217,7 +215,7 @@ def generate_markdown(
 
 
 # ---------------------------------------------------------------------------
-# HTML generation
+# HTML generation (optional)
 # ---------------------------------------------------------------------------
 
 def markdown_to_html(md_text: str, title: str = "Requirements") -> str:
