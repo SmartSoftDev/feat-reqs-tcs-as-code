@@ -45,7 +45,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--only-include-prefix",
         default=None,
-        metavar="BR-UR-PR-SWR-HWR-RR",
+        metavar="BR-UR-PR-SR-HR-RR",
         help="Dash-separated list of UIDs to include, e.g. BR-UR-PR. "
              "If omitted, all prefixes from the config are included.",
     )
