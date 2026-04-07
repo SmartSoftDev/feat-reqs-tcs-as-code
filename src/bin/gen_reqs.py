@@ -1,0 +1,277 @@
+#!/usr/bin/env python3
+"""
+gen_reqs.py — Requirements document generator.
+
+Discovers *ac.md files, groups them by prefix, sorts numerically,
+and emits a single Markdown (and optionally HTML) requirements document.
+"""
+
+import argparse
+import os
+import re
+import sys
+from pathlib import Path
+
+import yaml
+
+
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+def parse_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser(
+        description="Generate a requirements document from *_ac.md files.",
+    )
+    p.add_argument(
+        "--output",
+        choices=["md"],          # adoc reserved for future use
+        default="md",
+        help="Output format (default: md). 'adoc' support is planned.",
+    )
+    p.add_argument(
+        "--source-dir",
+        default=None,
+        metavar="DIR",
+        help="Root directory to search for *_ac.md files. "
+             "Defaults to root-dir from the project config.",
+    )
+    p.add_argument(
+        "--project-config",
+        default="./config.frtac.yml",
+        metavar="FILE",
+        help="Path to the frtac config YAML (default: ./config.frtac.yml). "
+             "Example: examples/Project1/config.frtac.yml",
+    )
+    p.add_argument(
+        "--only-include-prefix",
+        default=None,
+        metavar="BR-UR-PR-SWR-HWR-RR",
+        help="Dash-separated list of UIDs to include, e.g. BR-UR-PR. "
+             "If omitted, all prefixes from the config are included.",
+    )
+    p.add_argument(
+        "--html",
+        choices=["true", "false"],
+        default="false",
+        help="If 'true', additionally generate an HTML file from the Markdown.",
+    )
+    return p.parse_args()
+
+
+# ---------------------------------------------------------------------------
+# Config loading
+# ---------------------------------------------------------------------------
+
+def load_config(config_path: str) -> dict:
+    path = Path(config_path)
+    if not path.exists():
+        sys.exit(f"ERROR: project config not found: {config_path}")
+    with path.open(encoding="utf-8") as fh:
+        return yaml.safe_load(fh)
+
+
+def build_uid_map(config: dict) -> dict[str, dict]:
+    """Return {uid: item_entry} preserving config order."""
+    return {item["uid"]: item for item in config.get("items-grouping", [])}
+
+
+# ---------------------------------------------------------------------------
+# File discovery & parsing
+# ---------------------------------------------------------------------------
+
+# Matches the full metadata section: "# metadata" heading + fenced yml block.
+# Group 1 captures the raw YAML content inside the fences.
+METADATA_FENCE_RE = re.compile(
+    r"^#\s*metadata\s*\n```(?:ya?ml)?\n(.*?)```\n?",
+    re.IGNORECASE | re.DOTALL | re.MULTILINE,
+)
+
+FIRST_H1_RE = re.compile(r"^#\s+(.+)$", re.MULTILINE)
+
+
+def parse_ac_file(filepath: Path) -> dict | None:
+    """
+    Parse an *_ac.md file and return a dict with keys:
+        id, prefix, number, title, body, filepath
+    Returns None if the file cannot be parsed.
+    """
+    text = filepath.read_text(encoding="utf-8")
+
+    # --- metadata block ---
+    m = METADATA_FENCE_RE.search(text)
+    if not m:
+        print(f"WARNING: no metadata block in {filepath}, skipping.", file=sys.stderr)
+        return None
+
+    try:
+        meta = yaml.safe_load(m.group(1))
+    except yaml.YAMLError as exc:
+        print(f"WARNING: YAML error in {filepath}: {exc}, skipping.", file=sys.stderr)
+        return None
+
+    req_id: str = str(meta.get("id", "")).strip()
+    if not req_id:
+        print(f"WARNING: no 'id' in metadata of {filepath}, skipping.", file=sys.stderr)
+        return None
+
+    # Split "UR-1" → prefix="UR", number=1
+    id_match = re.match(r"^([A-Za-z]+)-(\d+)$", req_id)
+    if not id_match:
+        print(f"WARNING: id '{req_id}' doesn't match PREFIX-NUMBER pattern in {filepath}, skipping.", file=sys.stderr)
+        return None
+
+    prefix = id_match.group(1).upper()
+    number = int(id_match.group(2))
+
+    # --- strip metadata section from body ---
+    body_text = METADATA_FENCE_RE.sub("", text).strip()
+
+    # --- first remaining H1 becomes the title ---
+    h1_match = FIRST_H1_RE.search(body_text)
+    title = h1_match.group(1).strip() if h1_match else req_id
+
+    # Remove the title line from the body so we don't duplicate it
+    if h1_match:
+        body_text = body_text[h1_match.end():].strip()
+
+    return {
+        "id": req_id,
+        "prefix": prefix,
+        "number": number,
+        "title": title,
+        "body": body_text,
+        "filepath": filepath,
+        "meta": meta,
+    }
+
+
+def discover_files(source_dir: str | None, root_dir_from_config: str, config_path: str) -> list[dict]:
+    """
+    Search for *_ac.md files.
+
+    If --source-dir was not provided, resolve root-dir from the config file's
+    own directory. Otherwise use the explicitly supplied --source-dir.
+    """
+    if source_dir is None:
+        config_dir = Path(config_path).resolve().parent
+        search_path = (config_dir / root_dir_from_config).resolve()
+    else:
+        search_path = Path(source_dir).resolve()
+
+    if not search_path.exists():
+        sys.exit(f"ERROR: search directory does not exist: {search_path}")
+
+    results = []
+    ac_files = sorted(
+        set(search_path.rglob("*.ac.md")) | set(search_path.rglob("*_ac.md"))
+    )
+    for fp in ac_files:
+        parsed = parse_ac_file(fp)
+        if parsed:
+            results.append(parsed)
+    return results
+
+
+# ---------------------------------------------------------------------------
+# Markdown generation
+# ---------------------------------------------------------------------------
+
+def generate_markdown(
+    grouped: dict[str, list[dict]],
+    uid_map: dict[str, dict],
+    ordered_prefixes: list[str],
+) -> str:
+    """
+    Output structure:
+        # <Plural group name>          ← H1 per prefix
+        ## <ID> <Title>                ← H2 per requirement
+        ### Notes                      ← H3, only when the req has body text
+        <body text>
+    """
+    sections: list[str] = []
+
+    for prefix in ordered_prefixes:
+        items = grouped.get(prefix, [])
+        if not items:
+            continue
+
+        entry = uid_map[prefix]
+        chapter_title = entry.get("plural") or entry.get("name") or prefix
+
+        req_lines: list[str] = [f"# {chapter_title}", ""]
+
+        for req in items:
+            req_lines.append(f"## {req['id']}")
+            req_lines.append("")
+            req_lines.append(req["title"])
+            req_lines.append("")
+            if req["body"]:
+                req_lines.append("### Notes")
+                req_lines.append("")
+                req_lines.append(req["body"])
+                req_lines.append("")
+
+        sections.append("\n".join(req_lines))
+
+    return "\n".join(sections)
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+def main() -> None:
+    args = parse_args()
+
+    # --- load config ---
+    config = load_config(args.project_config)
+    uid_map = build_uid_map(config)
+    root_dir = config.get("root-dir", ".")
+
+    # --- determine which prefixes to include, in config order ---
+    if args.only_include_prefix:
+        requested = [p.strip().upper() for p in args.only_include_prefix.split("-") if p.strip()]
+        # Keep config order, but only those requested
+        ordered_prefixes = [uid for uid in uid_map if uid in requested]
+        # Warn about any requested prefix not in config
+        for p in requested:
+            if p not in uid_map:
+                print(f"WARNING: prefix '{p}' not found in config, ignoring.", file=sys.stderr)
+    else:
+        ordered_prefixes = list(uid_map.keys())
+
+    # --- discover & parse files ---
+    all_reqs = discover_files(args.source_dir, root_dir, args.project_config)
+
+    # --- filter by included prefixes ---
+    included_set = set(ordered_prefixes)
+    filtered = [r for r in all_reqs if r["prefix"] in included_set]
+
+    # --- group by prefix ---
+    grouped: dict[str, list[dict]] = {p: [] for p in ordered_prefixes}
+    for req in filtered:
+        grouped[req["prefix"]].append(req)
+
+    # --- sort each group numerically ---
+    for prefix in ordered_prefixes:
+        grouped[prefix].sort(key=lambda r: r["number"])
+
+    # --- generate output ---
+    if args.output == "md":
+        md_content = generate_markdown(grouped, uid_map, ordered_prefixes)
+
+        out_md = Path("requirements.md")
+        out_md.write_text(md_content, encoding="utf-8")
+        print(f"Written: {out_md}")
+
+        if args.html == "true":
+            html_content = markdown_to_html(md_content, title="Requirements")
+            out_html = Path("requirements.html")
+            out_html.write_text(html_content, encoding="utf-8")
+            print(f"Written: {out_html}")
+    else:
+        sys.exit(f"ERROR: output format '{args.output}' is not yet implemented.")
+
+
+if __name__ == "__main__":
+    main()
