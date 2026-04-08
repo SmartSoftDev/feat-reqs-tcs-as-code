@@ -320,17 +320,17 @@ def main() -> None:
         out.write_text(md_content, encoding="utf-8")
         print(f"Written: {out}")
 
-        if args.html == "true":
-            html_content = markdown_to_html(md_content, title="Requirements")
-            out_html = Path("requirements.html")
-            out_html.write_text(html_content, encoding="utf-8")
-            print(f"Written: {out_html}")
-
     elif args.output == "adoc":
         adoc_content = markdown_to_adoc(md_content)
         out = Path("requirements.adoc")
         out.write_text(adoc_content, encoding="utf-8")
         print(f"Written: {out}")
+
+    if args.html == "true":
+        html_content = markdown_to_html(md_content, title="Requirements")
+        out_html = Path("requirements.html")
+        out_html.write_text(html_content, encoding="utf-8")
+        print(f"Written: {out_html}")
 
 
 if __name__ == "__main__":
