@@ -3,7 +3,7 @@
 gen_reqs.py — Requirements document generator.
 
 Discovers *ac.md files, groups them by prefix, sorts numerically,
-and emits a single Markdown (and optionally HTML) requirements document.
+and emits a single Markdown or AsciiDoc requirements document.
 """
 
 import argparse
@@ -24,9 +24,9 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument(
         "--output",
-        choices=["md"],          # adoc reserved for future use
+        choices=["md", "adoc"],
         default="md",
-        help="Output format (default: md). 'adoc' support is planned.",
+        help="Output format: md (default) or adoc.",
     )
     p.add_argument(
         "--source-dir",
@@ -53,7 +53,7 @@ def parse_args() -> argparse.Namespace:
         "--html",
         choices=["true", "false"],
         default="false",
-        help="If 'true', additionally generate an HTML file from the Markdown.",
+        help="If 'true', additionally generate an HTML file. Only valid with --output md.",
     )
     return p.parse_args()
 
@@ -92,7 +92,7 @@ FIRST_H1_RE = re.compile(r"^#\s+(.+)$", re.MULTILINE)
 def parse_ac_file(filepath: Path) -> dict | None:
     """
     Parse an *ac.md file and return a dict with keys:
-        id, prefix, number, title, body, filepath
+        id, prefix, number, title, body, filepath, meta
     Returns None if the file cannot be parsed.
     """
     text = filepath.read_text(encoding="utf-8")
@@ -114,7 +114,7 @@ def parse_ac_file(filepath: Path) -> dict | None:
         print(f"WARNING: no 'id' in metadata of {filepath}, skipping.", file=sys.stderr)
         return None
 
-    # Split "UR-1" → prefix="UR", number=1
+    # Split "UR-1" -> prefix="UR", number=1
     id_match = re.match(r"^([A-Za-z]+)-(\d+)$", req_id)
     if not id_match:
         print(f"WARNING: id '{req_id}' doesn't match PREFIX-NUMBER pattern in {filepath}, skipping.", file=sys.stderr)
@@ -134,12 +134,22 @@ def parse_ac_file(filepath: Path) -> dict | None:
     if h1_match:
         body_text = body_text[h1_match.end():].strip()
 
+    # Split body into description (before any Notes heading) and notes (after)
+    notes_match = re.search(r"^#{1,6}\s*Notes\s*$", body_text, re.IGNORECASE | re.MULTILINE)
+    if notes_match:
+        description = body_text[:notes_match.start()].strip()
+        notes = body_text[notes_match.end():].strip()
+    else:
+        description = body_text
+        notes = None
+
     return {
         "id": req_id,
         "prefix": prefix,
         "number": number,
         "title": title,
-        "body": body_text,
+        "description": description,
+        "notes": notes,
         "filepath": filepath,
         "meta": meta,
     }
@@ -181,9 +191,10 @@ def generate_markdown(
 ) -> str:
     """
     Output structure:
-        # <Plural group name>          ← H1 per prefix
-        ## <ID> <Title>                ← H2 per requirement
-        ### Notes                      ← H3, only when the req has body text
+        # <Plural group name>      <- H1 per prefix
+        ## <ID>                    <- H2 per requirement
+        <title>
+        ### Notes                  <- H3, only when the req has body text
         <body text>
     """
     sections: list[str] = []
@@ -199,14 +210,15 @@ def generate_markdown(
         req_lines: list[str] = [f"# {chapter_title}", ""]
 
         for req in items:
-            req_lines.append(f"## {req['id']}")
+            req_lines.append(f"## {req['id']} {req['title']}")
             req_lines.append("")
-            req_lines.append(req["title"])
-            req_lines.append("")
-            if req["body"]:
+            if req["description"]:
+                req_lines.append(req["description"])
+                req_lines.append("")
+            if req["notes"] is not None:
                 req_lines.append("### Notes")
                 req_lines.append("")
-                req_lines.append(req["body"])
+                req_lines.append(req["notes"])
                 req_lines.append("")
 
         sections.append("\n".join(req_lines))
@@ -215,7 +227,7 @@ def generate_markdown(
 
 
 # ---------------------------------------------------------------------------
-# HTML generation (optional)
+# HTML generation
 # ---------------------------------------------------------------------------
 
 def markdown_to_html(md_text: str, title: str = "Requirements") -> str:
@@ -223,7 +235,6 @@ def markdown_to_html(md_text: str, title: str = "Requirements") -> str:
         import markdown  # type: ignore
         body = markdown.markdown(md_text, extensions=["fenced_code", "tables"])
     except ImportError:
-        # Fallback: very basic conversion (wrap in <pre> per section)
         print(
             "WARNING: 'markdown' package not installed; "
             "falling back to basic HTML wrapping. "
@@ -296,20 +307,18 @@ def main() -> None:
         grouped[prefix].sort(key=lambda r: r["number"])
 
     # --- generate output ---
+    md_content = generate_markdown(grouped, uid_map, ordered_prefixes)
+
     if args.output == "md":
-        md_content = generate_markdown(grouped, uid_map, ordered_prefixes)
+        out = Path("requirements.md")
+        out.write_text(md_content, encoding="utf-8")
+        print(f"Written: {out}")
 
-        out_md = Path("requirements.md")
-        out_md.write_text(md_content, encoding="utf-8")
-        print(f"Written: {out_md}")
-
-        if args.html == "true":
-            html_content = markdown_to_html(md_content, title="Requirements")
-            out_html = Path("requirements.html")
-            out_html.write_text(html_content, encoding="utf-8")
-            print(f"Written: {out_html}")
-    else:
-        sys.exit(f"ERROR: output format '{args.output}' is not yet implemented.")
+    if args.html == "true":
+        html_content = markdown_to_html(md_content, title="Requirements")
+        out_html = Path("requirements.html")
+        out_html.write_text(html_content, encoding="utf-8")
+        print(f"Written: {out_html}")
 
 
 if __name__ == "__main__":
