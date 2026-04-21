@@ -1,0 +1,5 @@
+# Dependencies for gen_reqs.py
+# Install with: pip install -r requirements.txt
+
+pyyaml
+markdown

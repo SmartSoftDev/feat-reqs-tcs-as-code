@@ -29,18 +29,12 @@ def parse_args() -> argparse.Namespace:
         help="Output format: md (default) or adoc.",
     )
     p.add_argument(
-        "--source-dir",
-        default=None,
-        metavar="DIR",
-        help="Root directory to search for *ac.md files. "
-             "Defaults to root-dir from the project config.",
-    )
-    p.add_argument(
         "--project-config",
         default="./config.frtac.yml",
         metavar="FILE",
         help="Path to the frtac config YAML (default: ./config.frtac.yml). "
-             "Example: examples/Project1/config.frtac.yml",
+             "Example: examples/Project1/config.frtac.yml. "
+             "The root-dir key in this file determines where *ac.md files are searched.",
     )
     p.add_argument(
         "--only-include-prefix",
@@ -51,9 +45,8 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument(
         "--html",
-        choices=["true", "false"],
-        default="false",
-        help="If 'true', additionally generate an HTML file. Only valid with --output md.",
+        action="store_true",
+        help="If set, additionally generate an HTML file. Only applies with --output md.",
     )
     return p.parse_args()
 
@@ -92,7 +85,7 @@ FIRST_H1_RE = re.compile(r"^#\s+(.+)$", re.MULTILINE)
 def parse_ac_file(filepath: Path) -> dict | None:
     """
     Parse an *ac.md file and return a dict with keys:
-        id, prefix, number, title, body, filepath, meta
+        id, prefix, number, title, description, notes, filepath, meta
     Returns None if the file cannot be parsed.
     """
     text = filepath.read_text(encoding="utf-8")
@@ -155,25 +148,17 @@ def parse_ac_file(filepath: Path) -> dict | None:
     }
 
 
-def discover_files(source_dir: str | None, root_dir_from_config: str, config_path: str) -> list[dict]:
+def discover_files(root_dir_from_config: str) -> list[dict]:
     """
-    Search for *ac.md files.
-
-    If --source-dir was not provided, resolve root-dir from the config file's
-    own directory. Otherwise use the explicitly supplied --source-dir.
+    Search for *ac.md files under root-dir as specified in the config.
     """
-    if source_dir is None:
-        config_dir = Path(config_path).resolve().parent
-        search_path = (config_dir / root_dir_from_config).resolve()
-    else:
-        search_path = Path(source_dir).resolve()
+    search_path = Path(root_dir_from_config).expanduser().resolve()
 
     if not search_path.exists():
         sys.exit(f"ERROR: search directory does not exist: {search_path}")
 
     results = []
-    ac_files = sorted(search_path.rglob("*ac.md"))
-    for fp in ac_files:
+    for fp in sorted(search_path.rglob("*ac.md")):
         parsed = parse_ac_file(fp)
         if parsed:
             results.append(parsed)
@@ -191,11 +176,11 @@ def generate_markdown(
 ) -> str:
     """
     Output structure:
-        # <Plural group name>      <- H1 per prefix
-        ## <ID>                    <- H2 per requirement
-        <title>
-        ### Notes                  <- H3, only when the req has body text
-        <body text>
+        # <Plural group name>          <- H1 per prefix
+        ## <ID> <Title>                <- H2 per requirement
+        <description>
+        ### Notes                      <- H3, only when source has a Notes section
+        <notes>
     """
     sections: list[str] = []
 
@@ -281,9 +266,7 @@ def main() -> None:
     # --- determine which prefixes to include, in config order ---
     if args.only_include_prefix:
         requested = [p.strip().upper() for p in args.only_include_prefix.split("-") if p.strip()]
-        # Keep config order, but only those requested
         ordered_prefixes = [uid for uid in uid_map if uid in requested]
-        # Warn about any requested prefix not in config
         for p in requested:
             if p not in uid_map:
                 print(f"WARNING: prefix '{p}' not found in config, ignoring.", file=sys.stderr)
@@ -291,7 +274,7 @@ def main() -> None:
         ordered_prefixes = list(uid_map.keys())
 
     # --- discover & parse files ---
-    all_reqs = discover_files(args.source_dir, root_dir, args.project_config)
+    all_reqs = discover_files(root_dir)
 
     # --- filter by included prefixes ---
     included_set = set(ordered_prefixes)
@@ -314,12 +297,11 @@ def main() -> None:
         out.write_text(md_content, encoding="utf-8")
         print(f"Written: {out}")
 
-    if args.html == "true":
+    if args.html:
         html_content = markdown_to_html(md_content, title="Requirements")
         out_html = Path("requirements.html")
         out_html.write_text(html_content, encoding="utf-8")
         print(f"Written: {out_html}")
-
 
 if __name__ == "__main__":
     main()
