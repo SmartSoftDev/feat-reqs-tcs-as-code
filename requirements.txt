@@ -2,4 +2,5 @@
 # Install with: pip install -r requirements.txt
 
 pyyaml
+pypandoc
 markdown

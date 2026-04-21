@@ -12,6 +12,15 @@ Install Python dependencies:
 pip install -r requirements.txt
 ```
 
+For AsciiDoc output, `pandoc` must also be installed on your system:
+
+```bash
+brew install pandoc      # macOS
+apt install pandoc       # Debian/Ubuntu
+```
+
+## Usage
+
 ```bash
 python gen_reqs.py [OPTIONS]
 ```
@@ -21,7 +30,7 @@ python gen_reqs.py [OPTIONS]
 | Option | Default | Description |
 |---|---|---|
 | `--project-config FILE` | `./config.frtac.yml` | Path to the frtac config YAML. Defines the known prefixes and their display names. The `root-dir` key in this file determines where `*ac.md` files are searched. |
-| `--output FORMAT` | `md` | Output format: `md` |
+| `--output FORMAT` | `md` | Output format: `md` or `adoc`. |
 | `--html` | *(off)* | Also generate an HTML file from the Markdown. |
 | `--only-include-prefix` | *(all)* | Dash-separated list of prefixes to include, e.g. `UR-PR-SR`. Chapters appear in the order they are defined in the config. |
 
@@ -39,6 +48,14 @@ Generate Markdown for user and software requirements only:
 python gen_reqs.py \
   --project-config path/to/config.frtac.yml \
   --only-include-prefix UR-SR
+```
+
+Generate AsciiDoc:
+
+```bash
+python gen_reqs.py \
+  --project-config path/to/config.frtac.yml \
+  --output adoc
 ```
 
 Generate Markdown and also export to HTML:
