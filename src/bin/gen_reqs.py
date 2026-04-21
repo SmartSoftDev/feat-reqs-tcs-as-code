@@ -46,7 +46,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--html",
         action="store_true",
-        help="If set, additionally generate an HTML file. Only applies with --output md.",
+        help="If set, additionally generate an HTML file.",
     )
     return p.parse_args()
 
