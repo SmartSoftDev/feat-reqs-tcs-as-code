@@ -212,6 +212,30 @@ def generate_markdown(
 
 
 # ---------------------------------------------------------------------------
+# AsciiDoc conversion
+# ---------------------------------------------------------------------------
+
+def markdown_to_adoc(md_text: str) -> str:
+    """Convert Markdown to AsciiDoc via pypandoc (wraps pandoc)."""
+    try:
+        import pypandoc  # type: ignore
+    except ImportError:
+        sys.exit(
+            "ERROR: pypandoc is required for --output adoc.\n"
+            "Install it with: pip install pypandoc"
+        )
+    try:
+        return pypandoc.convert_text(md_text, "asciidoc", format="md")
+    except OSError:
+        sys.exit(
+            "ERROR: pandoc binary not found.\n"
+            "Install it from https://pandoc.org/installing.html or via your package manager:\n"
+            "  brew install pandoc       # macOS\n"
+            "  apt install pandoc        # Debian/Ubuntu"
+        )
+
+
+# ---------------------------------------------------------------------------
 # HTML generation
 # ---------------------------------------------------------------------------
 
@@ -297,11 +321,18 @@ def main() -> None:
         out.write_text(md_content, encoding="utf-8")
         print(f"Written: {out}")
 
+    elif args.output == "adoc":
+        adoc_content = markdown_to_adoc(md_content)
+        out = Path("requirements.adoc")
+        out.write_text(adoc_content, encoding="utf-8")
+        print(f"Written: {out}")
+
     if args.html:
         html_content = markdown_to_html(md_content, title="Requirements")
         out_html = Path("requirements.html")
         out_html.write_text(html_content, encoding="utf-8")
         print(f"Written: {out_html}")
+
 
 if __name__ == "__main__":
     main()
