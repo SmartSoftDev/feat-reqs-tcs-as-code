@@ -272,7 +272,7 @@ def format_generated_file_section(
     # Always emit the key so downstream tooling can rely on it.
     generated["warnings"] = list(warnings)
 
-    return "# Generated-file\n\n" + _format_yaml_block(generated) + "\n"
+    return _format_yaml_block(generated) + "\n"
 
 
 def _requirement_metadata_block(req: dict) -> str:
