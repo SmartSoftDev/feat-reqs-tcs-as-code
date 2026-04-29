@@ -17,6 +17,7 @@ Items types:
 - name - required
 - uid - required
 - parents
+- parents_validation: ["minimum-one", "minimum-one-each-type"]
 - relation:
   - values: m-to-n or 1-to-n or n-to-1
 

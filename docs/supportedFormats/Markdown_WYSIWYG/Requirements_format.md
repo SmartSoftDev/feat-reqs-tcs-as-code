@@ -1,7 +1,9 @@
 # Markdown
 
-One requirement one file with following name format {text}.ac.md
+One requirement one file with following name format {text}.req.ac.md
 chapters like metadata are allowed and they associate YML or JSON data to the parent item.
+
+bellow starts the requirement format:
 
 # metadata
 

@@ -1,7 +1,9 @@
 # Markdown
 
-One requirement one file with following name format {text}.ac.md
+One requirement one file with following name format {text}.tc.ac.md
 chapters like metadata are allowed and they associate YML or JSON data to the parent item.
+
+Below starts the format of a TC
 
 # metadata
 
@@ -11,6 +13,7 @@ tags: [be]
 parent: [TS-1]
 links-to:
   tc-to-reqs: [UR-4, PR-1, SWR-1]
+duration: 10m # recommended way of estimating the TC duration
 ```
 
 # Title of the TC
@@ -30,12 +33,6 @@ Precondition1 description
 # Steps
 
 ## Step1 title
-
-### metadata
-
-```yml
-duration: 10m
-```
 
 action description executed for this step
 

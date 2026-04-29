@@ -2,7 +2,7 @@ version: 1.0
 root-dir: .
 links-to:
 - 
-  name: Requirements
+  name: Testing-to-Requirements
   uid: tc-to-reqs
   from-uids: [TS, TC]
   to-uids: [UR, PR, SWR, HWR, DDD]
@@ -10,13 +10,21 @@ links-to:
   to-name: tested-by
   require-link-completeness-percentage: true
 - 
-  name: Requirements
+  name: Feature-To-Reqs
   uid: feature-to-reqs
   from-uids: [E, F]
   to-uids: [UR, PR, SWR, HWR, DDD]
   to-name: implements
   from-name: requires
   require-link-completeness-percentage: true
+- 
+  name: Part-Of-Release
+  uid: to-release
+  from-uids: [E, F, BR, UR, PR, SWR, HWR, RR, DDD]
+  to-uids: [REL]
+  to-name: released-in
+  from-name: requires
+  relation: n-to-1
 
 items-grouping:
 -
@@ -30,37 +38,42 @@ items-grouping:
   uid: UR
   type: requirement
   parents: [BR]
+  parents_validation: minimum-one
 -
   name: Product Requirement
   plural: Product Requirements
   uid: PR
   type: requirement
   parents: [UR]
+  parents_validation: minimum-one
   relation: m-to-n
 -
   name: Software Requirement
   plural: Software Requirements
   uid: SWR
   parents: [PR]
+  parents_validation: minimum-one
   relation: m-to-n
 -  
   name: Hardware Requirement
   plural: Hardware Requirements
   uid: HWR
   parents: [PR]
+  parents_validation: minimum-one
   relation: m-to-n
 -  
   name: Regulatory Requirement
   plural: Regulatory Requirements
   uid: RR
   parents: [UR, BR, PR]
+  parents_validation: minimum-one
   relation: m-to-n
-
 - 
   name: Detailed Design Description 
   plural: Detailed Design Descriptions 
   uid: DDD
   parents: [HWR, SWR]
+  parents_validation: minimum-one
   relation: m-to-n
 -
   name: Test Suite
@@ -85,5 +98,12 @@ items-grouping:
   uid: F
   type: feature
   parents: [E]
+  parents_validation: minimum-one
   relation: m-to-n
+
+
+- 
+  name: Release
+  uid: REL
+  type: release
 
