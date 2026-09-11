@@ -12,7 +12,7 @@ Items types:
 - epic
 - feature
 
-# Common item configs
+## Common item configs
 
 - name - required
 - uid - required
@@ -21,7 +21,7 @@ Items types:
 - relation:
   - values: m-to-n or 1-to-n or n-to-1
 
-# Links
+## Links
 
 - name - required
 - uid - required
@@ -30,8 +30,10 @@ Items types:
 - from-name - shows the arrow and the name of the direction from->to.
 - to-name - shows the arrow and the name of the direction to->from
 - require-full-traceability: true - means every Item from either side must have at least one link to other elements.
+- require-coverage-at-to: require-coverage-at-from: true - will require HTML tagging
+  `<link-uid-itemID> ... </link-uid-itemID>` for showing the coverage.
 
-## additional LINKS information [ TO BE IMPROVED]
+### additional LINKS information [ NOGO ]
 
 Because the percentage is a sloppy way of defining completeness due to the fact that most of TC's linked to a req overlap
 in coverage. For ex: so if one Req has two TC's and both TC's cover 70% of the req you still don't know if the req is
