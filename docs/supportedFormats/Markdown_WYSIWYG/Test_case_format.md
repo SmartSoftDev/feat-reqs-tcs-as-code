@@ -1,11 +1,12 @@
-# Markdown
+# Title of the TC
 
-One requirement one file with following name format {text}.tc.ac.md
-chapters like metadata are allowed and they associate YML or JSON data to the parent item.
+description of the TC
 
-Below starts the format of a TC
+## Description
 
-# metadata
+also description fo the TC
+
+## metadata
 
 ```yml
 id: TC-3
@@ -16,11 +17,7 @@ links-to:
 duration: 10m # recommended way of estimating the TC duration
 ```
 
-# Title of the TC
-
-description of the TC
-
-# Preconditions
+## Preconditions
 
 ## Precondition1 title
 
@@ -30,19 +27,19 @@ Precondition1 description
 
 Precondition1 description
 
-# Steps
+## Steps
 
-## Step1 title
+### Step1 title
 
 action description executed for this step
 
-### Expected results
+#### Expected results
 
 descriptionfor expected results
 
-## Step2 title
+### Step2 title
 
-### metadata
+#### metadata TBD
 
 ```yml
 duration: 1h
@@ -50,6 +47,13 @@ duration: 1h
 
 step2.action description executed for this step
 
-### Expected results
+#### Expected results
 
 step2.expected_results description for expected results
+
+## Markdown Format Explanation
+
+One requirement one file with following name format {text}.tc.ac.md
+chapters like metadata are allowed and they associate YML or JSON data to the parent item.
+
+Below starts the format of a TC

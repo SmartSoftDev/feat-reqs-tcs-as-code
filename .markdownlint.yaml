@@ -1,6 +1,5 @@
 # see https://github.com/DavidAnson/markdownlint/blob/main/schema/.markdownlint.yaml for documentation
 default: true
-MD033: false
 # MD013/line-length : Line length : https://github.com/DavidAnson/markdownlint/blob/v0.41.1/doc/md013.md
 MD013:
   # Number of characters
@@ -26,3 +25,8 @@ MD033:
   allowed_elements: []
   # Allowed elements in tables
   table_allowed_elements: []
+
+# MD024/no-duplicate-heading : Multiple headings with the same content : https://github.com/DavidAnson/markdownlint/blob/v0.41.1/doc/md024.md
+MD024:
+  # Only check sibling headings
+  siblings_only: true

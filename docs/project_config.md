@@ -12,14 +12,25 @@ Items types:
 - epic
 - feature
 
+## Path configuration
+
+- root-dir - path to the project root. can be absolute path or relative to this file. default = "."
+
+## Item file name convention
+
+'0'PaddedNr-shortDescr.LowerUID.ac.md
+
 ## Common item configs
 
 - name - required
-- uid - required
+- uid - required. Always CAPITAL letters.
+- type - defaults to item. can be requirement, test-case, feature. Determines how the 0X-_._.ac.md file will be parsed.
 - parents
-- parents_validation: ["minimum-one", "minimum-one-each-type"]
+- parents_validation: ["minimum-one", "minimum-one-each-type", "optional"]
 - relation:
   - values: m-to-n or 1-to-n or n-to-1
+- stored_externally: true - indicates the item type is managed in another tool.
+- id_min_size: int - indicates how many '0' should be padded for item ID. defaults to 4
 
 ## Links
 
@@ -43,3 +54,13 @@ covered, because you do not know how TC's overlap, it can be 100% overlap and th
 - require-link-completeness-percentage: true - add object in the link like
 
 A better solution will be to mark what text parts of a req that is covered by a TC.
+
+## Configuring duration limitations
+
+"duration" field can be configured as integer number of "s,m,h,d" (seconds, minutes, hours, days) in metadata of any element (TC, Req, etc). The meaning of duration field can be different depending of item type it applies to. Usually it is added for TC's to indicate how much time the TC is running.
+But to be able to detect and inform users for bad values for duration the following configuraiton options to be added to the respective Item for duration:
+
+- duration-wrn-min: 5m
+- duration-wrn-max: 45m
+- duration-err-min: 2m
+- duration-err-max: 4h

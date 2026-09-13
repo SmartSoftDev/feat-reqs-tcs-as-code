@@ -1,4 +1,4 @@
-version: 1.0
+frtac_project_config_version: v1.0.0
 root-dir: .
 links-to:
   - name: Testing-to-Requirements
@@ -22,6 +22,18 @@ links-to:
     relation: n-to-1
 
 items-grouping:
+  - name: Polarion Unit
+    plural: Polarion Units
+    uid: PUNIT
+    stored_externally: true
+  - name: ADO PBI
+    plural: ADO PBIs
+    uid: PBI
+    stored_externally: true
+  - name: ADO Task
+    plural: ADO Tasks
+    uid: TASK
+    stored_externally: true
   - name: Business Requirement
     plural: Business Requirements
     uid: BR
@@ -67,14 +79,12 @@ items-grouping:
     plural: Test Suites
     uid: TS
     type: test-suite
-    links-to: [tc-to-reqs]
   - name: Test Case
     plural: Test Cases
     uid: TC
     type: test-case
     parents: [TS]
     relation: m-to-n
-    links-to: [tc-to-reqs]
   - name: Epics
     type: group
     uid: E
@@ -88,3 +98,13 @@ items-grouping:
   - name: Release
     uid: REL
     type: release
+    parents: [REL]
+documents:
+  - name: reqs
+    composite:
+      - git-info
+      - diagram:
+        type: hierarchy
+        items: [BR, PR, SWR, HWR]
+      - list-of-items:
+          - items: [BR, PR, SWR, HWR]

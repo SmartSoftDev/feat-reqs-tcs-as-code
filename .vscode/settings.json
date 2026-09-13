@@ -1,17 +1,20 @@
 {
     "python.autoComplete.extraPaths": [
-        "${workspaceRoot}"
+        "${workspaceRoot}",
+        "${workspaceRoot}/src/bin/",
     ],
     "python.defaultInterpreterPath": "python3",
     "[python]": {
         "editor.formatOnSave": true,
-        "editor.formatOnPaste": true
+        "editor.formatOnPaste": true,
+        "editor.defaultFormatter": "ms-python.black-formatter"
     },
     "[markdown]": {
         "editor.formatOnSave": true,
         "editor.formatOnPaste": true
     },
     "cSpell.words": [
+        "Frtac",
         "ghepy",
         "gjson",
         "iscoroutine",
