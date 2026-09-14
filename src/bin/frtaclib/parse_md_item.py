@@ -99,7 +99,7 @@ class MdFile:
                                     file=self.fpath_rel,
                                 )
                             )
-                    remove_one_chapter(self.ast, ndx)
+                    # FIXME: decide if: remove_one_chapter(self.ast, ndx)
 
         h1: Heading = self.ast.children[0]
         self.title = h1.children[0].children

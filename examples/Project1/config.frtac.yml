@@ -99,12 +99,19 @@ items-grouping:
     uid: REL
     type: release
     parents: [REL]
+docs_settings:
+  out_dir: generated
 documents:
-  - name: reqs
-    composite:
-      - git-info
-      - diagram:
-        type: hierarchy
-        items: [BR, PR, SWR, HWR]
-      - list-of-items:
-          - items: [BR, PR, SWR, HWR]
+  - name: testing
+    compose:
+      - component: list-of-items
+        items: [TS, TC]
+        hierarchy: true
+  # - name: reqs
+  #   composite:
+  #     - git-info
+  #     - diagram:
+  #       type: hierarchy
+  #       items: [BR, PR, SWR, HWR]
+  #     - list-of-items:
+  #         items: [BR, PR, SWR, HWR]

@@ -1,0 +1,22 @@
+
+# python projects from other repositories that must have a symlink in CORE. (to solve PYTHONPATH).
+.idea
+__pycache__/
+**/*.pyc
+**/*.cache
+**/.coverage
+
+.settings
+.mypy_cache/
+**/node_modules/
+**/.delivery
+**/.project
+**/.cproject
+venv/
+
+# Robot Framework generated run artifacts
+**/log.html
+**/report.html
+**/output.xml
+**/selenium-screenshot-*.png
+*.deb

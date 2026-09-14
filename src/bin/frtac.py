@@ -16,13 +16,15 @@ from frtaclib.simple_cli_app import SimpleCliApp
 from frtaclib.errors_mng import FrtacErrMng, FindingError, FindingWarning
 from frtaclib.validate_prj import validate_prj_config
 from frtaclib.parse_md_item import MdFile, ItemMdFileContent
+from frtaclib.generate import MdDocumentsGenerator
 
 
-class Frtac(SimpleCliApp, FrtacErrMng):
+class Frtac(SimpleCliApp, FrtacErrMng, MdDocumentsGenerator):
 
     def __init__(self):
         super(SimpleCliApp, self).__init__()
         super(FrtacErrMng, self).__init__()
+        super(MdDocumentsGenerator, self).__init__()
         self.args = None
         self.cfg_path = None
         self.cfg = None
@@ -67,6 +69,8 @@ class Frtac(SimpleCliApp, FrtacErrMng):
 
         sp = subparsers.add_parser("stats", help="Show stats")
         sp.set_defaults(cmd="stats")
+        sp = subparsers.add_parser("generate", help="Generate docs")
+        sp.set_defaults(cmd="generate")
 
         self.args = p.parse_args()
 
@@ -203,7 +207,6 @@ class Frtac(SimpleCliApp, FrtacErrMng):
         self.start_cmd()
         return
 
-        all_reqs = discover_files(root_dir, config_root, warnings)
         detect_duplicate_ids(all_reqs, warnings)
 
         # --- filter by included prefixes ---
