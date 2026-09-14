@@ -23,15 +23,13 @@ def validate_prj_config(app) -> "List[Finding]":
     uids = list(app.items.keys())
     cfg_path = str(app.cfg_path)
     for i in items:
-        if not i.get("name"):
-            ret.append(FindingError("missing_name", f"Item {i.get('uid')} must have 'name'", cfg_path))
-        if i["uid"] != i["uid"].upper():
-            ret.append(FindingError("item_uid_upper", f"Item {i.get('uid')} must be UPPER case", cfg_path))
-        for p in i.get("parents", []):
+        if not i.name:
+            ret.append(FindingError("missing_name", f"Item {i.uid} must have 'name'", cfg_path))
+        if i.uid != i.uid.upper():
+            ret.append(FindingError("item_uid_upper", f"Item {i.uid} must be UPPER case", cfg_path))
+        for p in i.parents:
             if p not in uids:
-                ret.append(FindingError("unk_parent", f"Item {i.get('uid')} parent {p!r} is unknown", cfg_path))
-        if i.get("type", Allowed.ITEM_TYPES[0]) not in Allowed.ITEM_TYPES:
-            ret.append(
-                FindingError("unk_item_type", f"Item {i.get('uid')} type {i.get('type')!r} is unknown", cfg_path)
-            )
+                ret.append(FindingError("unk_parent", f"Item {i.uid} parent {p!r} is unknown", cfg_path))
+        if i.type not in Allowed.ITEM_TYPES:
+            ret.append(FindingError("unk_item_type", f"Item {i.uid} type {i.type!r} is unknown", cfg_path))
     return ret

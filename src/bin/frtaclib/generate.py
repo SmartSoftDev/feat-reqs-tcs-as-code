@@ -31,7 +31,7 @@ class MdDocumentsGenerator:
                     for i_uid in d_items:
                         if i_uid not in self.items:
                             raise Exception(f"{i_uid=} not found")
-                        for f in self.items[i_uid].get("files", []):
+                        for f in self.items[i_uid].files:
                             f: ItemMdFileContent
                             new_ast = copy.deepcopy(f.ast)
                             title: Heading = new_ast.children[0]

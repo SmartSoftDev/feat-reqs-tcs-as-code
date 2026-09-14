@@ -17,25 +17,23 @@ links-to:
 duration: 10m # recommended way of estimating the TC duration
 ```
 
+## link-description_tc-to-reqs_UR-4
+
+This is a note/description for the link UR-4 link.
+
 ## Preconditions
 
-## Precondition1 title
-
-Precondition1 description
-
-## Precondition2 title
-
-Precondition1 description
+Preconditions description. Do not have subchapters on preconditions.
 
 ## Steps
 
 ### Step1 title
 
-action description executed for this step
+action description executed for this step.
 
 #### Expected results
 
-descriptionfor expected results
+Description for expected results.
 
 ### Step2 title
 
@@ -45,11 +43,11 @@ descriptionfor expected results
 duration: 1h
 ```
 
-step2.action description executed for this step
+step2 action description executed for this step
 
 #### Expected results
 
-step2.expected_results description for expected results
+step2 expected_results description for expected results
 
 ## Markdown Format Explanation
 

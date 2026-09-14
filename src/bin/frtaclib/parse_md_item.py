@@ -31,15 +31,19 @@ def skip_until_first_heading(ast):
 
 class MdFile:
 
-    def __init__(self, fpath_rel: Path):
+    def __init__(self, fpath: Path, fpath_rel: Path):
+        self.fpath = fpath
         self.fpath_rel = fpath_rel
         self.ast: Document = None
         self.meta: dict = {}
         self.title: str = None
 
+    def __repr__(self):
+        return f"Mdf: {self.fpath_rel}"
+
     def parse_file(self):
         errs = []
-        c = self.fpath_rel.read_text()
+        c = self.fpath.read_text()
 
         parser = marko.Markdown()
         self.ast = parser.parse(c)
@@ -108,13 +112,17 @@ class MdFile:
 
 
 class ItemMdFileContent(MdFile):
-    def __init__(self, fpath_rel: Path):
-        super().__init__(fpath_rel)
+
+    def __init__(self, fpath: Path, fpath_rel: Path):
+        super().__init__(fpath, fpath_rel)
 
         # populated data
         self.valid = False
         self.item_uid = None
         self.id: str = None
+
+    def __repr__(self):
+        return f"Mdi: {self.item_uid}-{self.id}"
 
     def populate_and_validate(self):
         errs = []

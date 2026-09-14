@@ -1,6 +1,17 @@
 frtac_project_config_version: v1.0.0
 root-dir: .
 links-to:
+  - uid: parent-br
+    from:
+      uids: [BR]
+      relation-name: child
+      validation: minimum-one
+    to:
+      uids: [UR]
+      relation-name: parent
+      validation: minimum-one
+    relation: 1-to-n # default
+
   - name: Testing-to-Requirements
     uid: tc-to-reqs
     from-uids: [TS, TC]
@@ -17,7 +28,7 @@ links-to:
     uid: to-release
     from-uids: [E, F, BR, UR, PR, SWR, HWR, RR, DDD]
     to-uids: [REL]
-    to-name: released-in
+    to-relation-name: released-in
     from-name: requires
     relation: n-to-1
 

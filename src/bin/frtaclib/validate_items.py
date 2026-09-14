@@ -1,37 +1,30 @@
-"""
-    Copyright (C) Smartsoftdev.eu SRL - All Rights Reserved
-    Proprietary and confidential license.
-    Unauthorized copying via any medium or use of this file IS STRICTLY prohibited
-    For any license violations or more about commercial licensing please contact:
-    SmartSoftDev.eu
-
-validates project config
-"""
-
 from typing import List
-from frtaclib.errors_mng import FrtacErrMng, FindingWarning, FindingError, Finding
+from pathlib import Path
+from frtaclib.parse_md_item import ItemMdFileContent
+from frtaclib.errors_mng import FindingWarning, FindingError, Finding
+from frtaclib.data_model import LinkCfg
 
 
-class Allowed:
-    ITEM_TYPES = ["item", "group", "requirement", "test-suite", "test-case", "feature", "release"]  # default = item
-    PARENTS_VALIDATION = ["minimum-one", "minimum-one-each-type", "optional"]
+class ValidateItems:
+    def __init__(self):
+        self.cfg: dict = {}
+        self.items: dict = {}
+        self.links: dict = {}
+        self.prj_root: Path
 
-
-def validate_prj_config(app) -> "List[Finding]":
-    ret = []
-    items = app.items.values()
-    uids = list(app.items.keys())
-    cfg_path = str(app.cfg_path)
-    for i in items:
-        if not i.get("name"):
-            ret.append(FindingError("missing_name", f"Item {i.get('uid')} must have 'name'", cfg_path))
-        if i["uid"] != i["uid"].upper():
-            ret.append(FindingError("item_uid_upper", f"Item {i.get('uid')} must be UPPER case", cfg_path))
-        for p in i.get("parents", []):
-            if p not in uids:
-                ret.append(FindingError("unk_parent", f"Item {i.get('uid')} parent {p!r} is unknown", cfg_path))
-        if i.get("type", Allowed.ITEM_TYPES[0]) not in Allowed.ITEM_TYPES:
-            ret.append(
-                FindingError("unk_item_type", f"Item {i.get('uid')} type {i.get('type')!r} is unknown", cfg_path)
-            )
-    return ret
+    def validate_and_populate_items(self) -> List[Finding]:
+        errs = []
+        # pupulate links for items
+        for lcfg in self.cfg.get("links-to", []):
+            l: LinkCfg = LinkCfg.from_cfg(lcfg)
+            print(l)
+            self.links[l.uid] = l
+            for tol in l.from_uids:
+                if tol not in self.items:
+                    errs.append(FindingError("unk-link-uid", f"link Item {tol!r} not found", file=self.prj_root))
+                i = self.items[tol]
+                i.links.append(l)
+        for i in self.items.values():
+            # print(i)
+            pass
+        return errs

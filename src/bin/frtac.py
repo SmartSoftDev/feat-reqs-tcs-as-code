@@ -15,32 +15,28 @@ import yaml
 from frtaclib.simple_cli_app import SimpleCliApp
 from frtaclib.errors_mng import FrtacErrMng, FindingError, FindingWarning
 from frtaclib.validate_prj import validate_prj_config
+from frtaclib.validate_items import ValidateItems
 from frtaclib.parse_md_item import MdFile, ItemMdFileContent
 from frtaclib.generate import MdDocumentsGenerator
+from frtaclib.data_model import ItemCfg
 
 
-class Frtac(SimpleCliApp, FrtacErrMng, MdDocumentsGenerator):
+class Frtac(SimpleCliApp, FrtacErrMng, MdDocumentsGenerator, ValidateItems):
 
     def __init__(self):
         super(SimpleCliApp, self).__init__()
         super(FrtacErrMng, self).__init__()
         super(MdDocumentsGenerator, self).__init__()
+        super(ValidateItems, self).__init__()
         self.args = None
         self.cfg_path = None
         self.cfg = None
         self.prj_root = None
         self.items = None
-        self.ordered_uids = None
 
     def parse_args(self) -> argparse.Namespace:
         p = sp = argparse.ArgumentParser(
             description="Generate a requirements document from *ac.md files.",
-        )
-        p.add_argument(
-            "--output",
-            choices=["md", "adoc"],
-            default="md",
-            help="Output format: md (default) or adoc.",
         )
         p.add_argument(
             "--project-config",
@@ -49,18 +45,6 @@ class Frtac(SimpleCliApp, FrtacErrMng, MdDocumentsGenerator):
             help="Path to the frtac config YAML (default: ./config.frtac.yml). "
             "Example: examples/Project1/config.frtac.yml. "
             "The root-dir key in this file determines where *ac.md files are searched.",
-        )
-        p.add_argument(
-            "--only-include-prefix",
-            default=None,
-            metavar="UR-PR-SR-TC-...",
-            help="Dash-separated list of UIDs to include, e.g. BR-UR-PR. "
-            "If omitted, all prefixes from the config are included.",
-        )
-        p.add_argument(
-            "--html",
-            action="store_true",
-            help="If set, additionally generate an HTML file.",
         )
         subparsers = p.add_subparsers(title="Sub commands")
 
@@ -90,23 +74,12 @@ class Frtac(SimpleCliApp, FrtacErrMng, MdDocumentsGenerator):
         if self.prj_root == ".":
             self.prj_root = self.cfg_path.resolve().parent
         # preprocessing the cfg data
-        self.items = {item["uid"]: item for item in self.cfg.get("items-grouping", [])}
+        self.items = {item["uid"]: ItemCfg.from_cfg(item) for item in self.cfg.get("items-grouping", [])}
         allowed_item_types = ["item", "requirement", "feature", "test-case", "test-suite", "release"]
-        for k, i in self.items.items():
-            i["files"] = []
-            i_type = i.get("type", "item")
-            if i_type not in allowed_item_types:
-                raise Exception(f"Unknown item type {i_type=} {allowed_item_types=}")
-
-        # --- determine which prefixes to include, in config order ---
-        if self.args.only_include_prefix:
-            requested = [p.strip().upper() for p in self.args.only_include_prefix.split("-") if p.strip()]
-            self.ordered_uids = [uid for uid in self.items.keys() if uid in requested]
-            for p in requested:
-                if p not in self.items.keys():
-                    raise Exception(f"Prefix '{p}' not found in PRJ config")
-        else:
-            self.ordered_uids = list(self.items.keys())
+        for _, i in self.items.items():
+            i: ItemCfg
+            if i.type not in allowed_item_types:
+                raise Exception(f"Unknown item type {i.type=} {allowed_item_types=}")
 
     def discover_files(self):
         for root, _, files in os.walk(self.prj_root):
@@ -126,11 +99,11 @@ class Frtac(SimpleCliApp, FrtacErrMng, MdDocumentsGenerator):
                             )
                         )
                         continue
-                    desc_file = MdFile(full_path)
-                    self.items[i_uid]["desc_doc"] = desc_file
+                    desc_file = MdFile(full_path, rel_path)
+                    self.items[i_uid].desc_doc = desc_file
                     continue
 
-                item_file = ItemMdFileContent(full_path)
+                item_file = ItemMdFileContent(full_path, rel_path)
                 self.add_finding_list(item_file.parse_file())
 
                 if item_file.item_uid not in self.items:
@@ -138,13 +111,24 @@ class Frtac(SimpleCliApp, FrtacErrMng, MdDocumentsGenerator):
                         FindingError("unk_item_type", f"Unknown ITEM type {item_file.item_uid!r}", file=str(rel_path))
                     )
                 else:
-                    i = self.items.get(item_file.item_uid)
-                    i["files"].append(item_file)
+                    i: ItemCfg = self.items.get(item_file.item_uid)
+                    i.files.append(item_file)
+                    if item_file.id in i.ids:
+                        self.add_finding(
+                            FindingError(
+                                "item_duplicate",
+                                f"Id for {item_file.item_uid!r} has duplicate id={item_file.id!r}",
+                                file=str(rel_path),
+                            )
+                        )
+                        item_file.id += "-dup"
+                    i.ids[item_file.id] = item_file
 
         for i in self.items.values():
-            i["files"] = sorted(i["files"], key=lambda x: x.id)
-            if not i.get("desc_doc"):
-                self.add_finding(FindingWarning("item_wo_desc", f"Item {i.get('uid')} has no description document"))
+            i: ItemCfg
+            i.files = sorted(i.files, key=lambda x: x.id)
+            if not i.desc_doc:
+                self.add_finding(FindingWarning("item_wo_desc", f"Item {i.uid} has no description document"))
 
     def get_git_info(self, repo_path: Path) -> dict | None:
         """
@@ -204,6 +188,7 @@ class Frtac(SimpleCliApp, FrtacErrMng, MdDocumentsGenerator):
         self.load_prj_config()
         self.discover_files()
         self.add_finding_list(validate_prj_config(self))
+        self.validate_and_populate_items()
         self.start_cmd()
         return
 
@@ -247,33 +232,6 @@ class Frtac(SimpleCliApp, FrtacErrMng, MdDocumentsGenerator):
             out_html = Path("requirements.html")
             out_html.write_text(html_content, encoding="utf-8")
             print(f"Written: {out_html}")
-
-
-def detect_duplicate_ids(reqs: list[dict], warnings: list[str]) -> None:
-    """Append a warning for each id found in more than one file."""
-    by_id: dict[str, list[str]] = defaultdict(list)
-    for r in reqs:
-        by_id[r["id"]].append(r["rel_path"])
-    for req_id, paths in by_id.items():
-        if len(paths) > 1:
-            files_str = ", ".join(paths)
-            warnings.append(f"Duplicated ID {req_id} found in files: {files_str}")
-
-
-# ---------------------------------------------------------------------------
-# Markdown generation
-# ---------------------------------------------------------------------------
-
-
-def _format_yaml_block(data: dict) -> str:
-    """Dump a dict as a ```yml fenced block, preserving insertion order."""
-    yaml_str = yaml.safe_dump(
-        data,
-        sort_keys=False,
-        default_flow_style=False,
-        allow_unicode=True,
-    ).rstrip()
-    return f"```yml\n{yaml_str}\n```"
 
 
 def format_generated_file_section(
