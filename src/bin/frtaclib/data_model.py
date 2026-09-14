@@ -1,6 +1,7 @@
 from typing import List, Dict
 from dataclasses import dataclass
 from frtaclib.parse_md_item import MdFile, ItemMdFileContent
+from collections import OrderedDict
 
 
 @dataclass
@@ -14,10 +15,7 @@ class ItemCfg:
     desc_doc: MdFile = None
     files: List[ItemMdFileContent] = None
     ids: Dict[str, ItemMdFileContent] = None
-    links: List[LinkCfg] = None
-
-    def __repr__(self):
-        return f""
+    links: OrderedDict[str, LinkCfg] = None
 
     @classmethod
     def from_cfg(cls: ItemCfg, item: dict):
@@ -31,7 +29,7 @@ class ItemCfg:
             # populated
             files=[],
             ids={},
-            links=[],
+            links=OrderedDict(),
         )
 
 
@@ -41,9 +39,11 @@ class LinkCfg:
     to_uids: List[str] = None
     to_rel_name: str = None
     to_validation: str = None
+    to_allowed: bool = None
     from_uids: List[str] = None
     from_rel_name: str = None
     from_validation: str = None
+    from_allowed: bool = None
     relation: str = None
 
     @classmethod
@@ -55,8 +55,10 @@ class LinkCfg:
             to_uids=d_to.get("uids"),
             to_rel_name=d_to.get("relation-name"),
             to_validation=d_to.get("validation"),
+            to_allowed=d_to.get("allowed-here", True),
             from_uids=d_from.get("uids"),
             from_rel_name=d_from.get("relation-name"),
             from_validation=d_from.get("validation"),
+            from_allowed=d_from.get("allowed-here", True),
             relation=d.get("relation", "1-to-n"),
         )

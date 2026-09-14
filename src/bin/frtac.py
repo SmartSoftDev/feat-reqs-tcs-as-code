@@ -188,7 +188,7 @@ class Frtac(SimpleCliApp, FrtacErrMng, MdDocumentsGenerator, ValidateItems):
         self.load_prj_config()
         self.discover_files()
         self.add_finding_list(validate_prj_config(self))
-        self.validate_and_populate_items()
+        self.add_finding_list(self.validate_and_populate_items())
         self.start_cmd()
         return
 

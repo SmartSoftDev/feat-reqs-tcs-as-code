@@ -1,7 +1,7 @@
 frtac_project_config_version: v1.0.0
 root-dir: .
 links-to:
-  - uid: parent-br
+  - uid: parent-BR
     from:
       uids: [BR]
       relation-name: child
@@ -117,7 +117,8 @@ documents:
     compose:
       - component: list-of-items
         items: [TS, TC]
-        hierarchy: true
+        hierarchy:
+          links: [parent-TS]
   # - name: reqs
   #   composite:
   #     - git-info

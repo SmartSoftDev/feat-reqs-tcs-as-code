@@ -121,6 +121,9 @@ class ItemMdFileContent(MdFile):
         self.item_uid = None
         self.id: str = None
 
+    def full_id(self):
+        return f"{self.item_uid}-{self.id}"
+
     def __repr__(self):
         return f"Mdi: {self.item_uid}-{self.id}"
 
