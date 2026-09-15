@@ -55,6 +55,11 @@ class ValidateItems:
             for f in i.files:
                 f: ItemMdFileContent
                 f_links: dict = f.meta.get("links-to", {})
+                if not isinstance(f_links, dict):
+                    errs.append(
+                        FindingError("malformed-links-to", f"Links-to must be dict {f.full_id()}", file=f.fpath_rel)
+                    )
+                    continue
                 for k in f_links.keys():
                     if k not in i.links:
                         errs.append(
@@ -75,6 +80,8 @@ class ValidateItems:
                     for i_f in i.files:
                         i_f: ItemMdFileContent
                         if_links = i_f.meta.get("links-to", {})
+                        if not isinstance(if_links, dict):
+                            continue  # no need for errs because above it is checked
                         if_link_value = if_links.get(l.uid)
                         if not if_link_value or not len(if_link_value):
                             errs.append(
